@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Focus Garden 🦊</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --work:#FFB84D; --work-deep:#F79A1E;
+    --short:#7FD8BE; --short-deep:#4FBFA0;
+    --long:#B8A6E8; --long-deep:#9884D8;
+    --ink:#33313D; --ink-soft:#6B6878;
+    --card:#FFFFFF; --line:#EEE7DC;
+    --accent: var(--work); --accent-deep: var(--work-deep);
+    --sky-top:#CFEFFF; --sky-bottom:#FFF6E5;
+    --coin:#F7B733; --sticker:#B98CE0;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:'Quicksand',sans-serif; color:var(--ink); min-height:100vh;
+    background: linear-gradient(180deg, var(--sky-top) 0%, var(--sky-bottom) 55%, #EAF6DE 100%);
+    transition: background 0.9s ease; overflow-x:hidden; padding-bottom:40px;
+  }
+  body.mode-short{ --accent:var(--short); --accent-deep:var(--short-deep); }
+  body.mode-long{ --accent:var(--long); --accent-deep:var(--long-deep); }
+  h1,h2,h3,.display{ font-family:'Baloo 2', sans-serif; margin:0; }
+  .wrap{ max-width:960px; margin:0 auto; padding:22px 18px 0; }
+  .hidden{ display:none !important; }
+
+  /* ============ LANDING PAGE ============ */
+  #landing{
+    min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    text-align:center; padding:30px 20px; background:linear-gradient(180deg,#CFEFFF 0%,#FFF6E5 55%,#EAF6DE 100%);
+    position:relative; overflow:hidden;
+  }
+  .land-cloud{ position:absolute; opacity:.7; animation:drift 40s linear infinite; }
+  @keyframes drift{ from{ transform:translateX(-120px);} to{ transform:translateX(110vw);} }
+  .land-fox{ font-size:6.5rem; animation:landBounce 2.4s ease-in-out infinite; filter:drop-shadow(0 10px 14px rgba(0,0,0,.12)); }
+  @keyframes landBounce{ 0%,100%{ transform:translateY(0) rotate(-2deg);} 50%{ transform:translateY(-14px) rotate(2deg);} }
+  #landing h1{ font-size:2.6rem; margin-top:8px; color:var(--ink); }
+  #landing h1 span{ color:var(--work-deep); }
+  #landing p.tag{ font-size:1.05rem; color:var(--ink-soft); max-width:460px; margin:10px auto 22px; font-weight:600; }
+  .land-features{ display:flex; gap:12px; flex-wrap:wrap; justify-content:center; max-width:560px; margin-bottom:26px; }
+  .land-chip{
+    background:#fff; border:2px solid var(--line); border-radius:16px; padding:10px 14px; font-weight:700; font-size:.85rem;
+    box-shadow:0 3px 0 var(--line); display:flex; align-items:center; gap:6px;
+  }
+  .land-btn{
+    font-family:'Baloo 2'; font-size:1.15rem; font-weight:700; color:#fff; background:var(--work);
+    border:none; border-radius:20px; padding:16px 36px; cursor:pointer; box-shadow:0 6px 0 var(--work-deep);
+    transition:transform .15s;
+  }
+  .land-btn:active{ transform:translateY(4px); box-shadow:0 2px 0 var(--work-deep); }
+  .land-note{ margin-top:14px; font-size:.78rem; color:var(--ink-soft); font-weight:600; }
+
+  /* ============ HEADER ============ */
+  header{ display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+  .brand{ display:flex; align-items:center; gap:10px; }
+  .brand .logo{ width:42px; height:42px; }
+  .brand h1{ font-size:1.5rem; color:var(--ink); }
+  .brand span{ color:var(--accent-deep); transition:color .6s; }
+  .header-right{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+  .pill{
+    background:var(--card); border:2px solid var(--line); border-radius:999px; padding:8px 13px;
+    font-weight:700; font-size:.85rem; display:flex; align-items:center; gap:6px; box-shadow:0 2px 0 var(--line);
+    cursor:pointer; user-select:none; position:relative;
+  }
+  .pill.static{ cursor:default; }
+  .pill .coin-num{ color:var(--coin); } .pill .sticker-num{ color:var(--sticker); }
+  .icon-btn{
+    background:var(--card); border:2px solid var(--line); border-radius:14px; width:40px; height:40px;
+    display:flex; align-items:center; justify-content:center; font-size:1.15rem; cursor:pointer; box-shadow:0 2px 0 var(--line);
+  }
+
+  /* streak popover */
+  .popover{
+    position:absolute; top:calc(100% + 10px); right:0; width:270px; background:#fff; border:2px solid var(--line);
+    border-radius:20px; padding:16px; box-shadow:0 12px 30px rgba(40,30,10,.15); z-index:60; text-align:left;
+  }
+  .popover .flame{ font-size:2.2rem; text-align:center; }
+  .popover .streaknum{ font-family:'Baloo 2'; font-size:1.8rem; text-align:center; color:var(--accent-deep); }
+  .popover .streaklabel{ text-align:center; color:var(--ink-soft); font-weight:700; font-size:.8rem; margin-bottom:10px; }
+  .weekrow{ display:flex; justify-content:space-between; margin:10px 0; }
+  .weekday{ display:flex; flex-direction:column; align-items:center; gap:4px; font-size:.65rem; font-weight:700; color:var(--ink-soft); }
+  .weekcircle{ width:26px; height:26px; border-radius:50%; background:#F1ECE1; display:flex; align-items:center; justify-content:center; font-size:.8rem; }
+  .weekcircle.filled{ background:var(--accent); color:#fff; }
+  .weekcircle.today{ box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 35%, transparent); }
+  .pop-stats{ display:flex; justify-content:space-between; margin-top:8px; font-size:.78rem; font-weight:700; color:var(--ink-soft); border-top:1px solid var(--line); padding-top:8px; }
+  .pop-stats b{ color:var(--ink); display:block; font-size:1rem; }
+
+  /* ============ TABS / STAGE (unchanged core) ============ */
+  .tabs{ display:flex; gap:8px; margin:22px 0 6px; justify-content:center; flex-wrap:wrap; }
+  .tab{ border:none; cursor:pointer; padding:10px 18px; border-radius:999px; font-family:'Baloo 2'; font-size:.95rem; font-weight:600; color:var(--ink-soft); background:#fff; border:2px solid var(--line); transition:all .25s; }
+  .tab.active{ background:var(--accent); color:#fff; border-color:var(--accent-deep); box-shadow:0 3px 0 var(--accent-deep); transform:translateY(-1px); }
+
+  .stage{ background:var(--card); border-radius:32px; padding:28px 20px 22px; box-shadow:0 10px 30px rgba(60,50,30,.08); border:2px solid var(--line); display:flex; align-items:center; justify-content:center; gap:28px; flex-wrap:wrap; margin-top:10px; position:relative; overflow:hidden; }
+  .timer-block{ display:flex; flex-direction:column; align-items:center; }
+  .ring-wrap{ position:relative; width:240px; height:240px; }
+  svg.ring{ transform:rotate(-90deg); width:240px; height:240px; }
+  .ring-bg{ fill:none; stroke:#F1ECE1; stroke-width:14; }
+  .ring-fg{ fill:none; stroke:var(--accent); stroke-width:14; stroke-linecap:round; transition:stroke .6s ease, stroke-dashoffset 1s linear; }
+  .ring-center{ position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+  .time{ font-family:'Baloo 2'; font-size:2.9rem; font-weight:700; letter-spacing:1px; }
+  .mode-label{ font-weight:700; color:var(--ink-soft); text-transform:uppercase; font-size:.75rem; letter-spacing:2px; margin-top:2px; }
+  .task-tag{ margin-top:6px; font-size:.8rem; color:var(--accent-deep); font-weight:700; max-width:180px; text-align:center; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .controls{ display:flex; gap:10px; margin-top:18px; }
+  .btn{ font-family:'Baloo 2'; border:none; cursor:pointer; border-radius:16px; font-weight:700; padding:12px 20px; font-size:1rem; transition:transform .15s ease, box-shadow .15s ease; }
+  .btn:active{ transform:translateY(2px); box-shadow:none !important; }
+  .btn-primary{ background:var(--accent); color:#fff; box-shadow:0 4px 0 var(--accent-deep); }
+  .btn-ghost{ background:#fff; color:var(--ink); border:2px solid var(--line); box-shadow:0 4px 0 var(--line); }
+  .btn-icon{ padding:12px 14px; }
+  .dots{ display:flex; gap:7px; margin-top:14px; }
+  .dot{ width:10px; height:10px; border-radius:50%; background:#EDE7DA; }
+  .dot.filled{ background:var(--accent); }
+  .dot.current{ box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 35%, transparent); }
+
+  .fox-box{ display:flex; flex-direction:column; align-items:center; gap:8px; min-width:180px; }
+  .fox-svg{ width:170px; height:170px; }
+  .fox-bubble{ background:#fff; border:2px solid var(--line); border-radius:14px; padding:8px 12px; font-weight:700; font-size:.85rem; text-align:center; max-width:190px; min-height:20px; box-shadow:0 2px 0 var(--line); }
+  .tail{ transform-origin:70% 80%; animation:wag 1.4s ease-in-out infinite; }
+  body.paused .tail{ animation-play-state:paused; }
+  @keyframes wag{ 0%,100%{ transform:rotate(0deg);} 50%{ transform:rotate(8deg);} }
+  .fox-body-group{ animation:breathe 3s ease-in-out infinite; transform-origin:center; }
+  @keyframes breathe{ 0%,100%{ transform:translateY(0);} 50%{ transform:translateY(-3px);} }
+  .blink{ animation:blink 4.5s infinite; }
+  @keyframes blink{ 0%,92%,100%{ transform:scaleY(1);} 95%{ transform:scaleY(0.1);} }
+  .zzz{ font-family:'Baloo 2'; font-size:20px; fill:var(--ink-soft); opacity:0; }
+  body.mode-short .zzz, body.mode-long .zzz{ animation:floatZzz 3s ease-in-out infinite; }
+  @keyframes floatZzz{ 0%{ opacity:0; transform:translateY(0);} 30%{opacity:1;} 100%{ opacity:0; transform:translateY(-18px);} }
+
+  /* ============ PANELS ============ */
+  .grid{ display:grid; grid-template-columns:1.1fr 1fr; gap:18px; margin-top:20px; }
+  @media(max-width:720px){ .grid{ grid-template-columns:1fr; } }
+  .panel{ background:var(--card); border-radius:24px; border:2px solid var(--line); padding:18px 18px 16px; box-shadow:0 6px 18px rgba(60,50,30,.05); }
+  .panel h2{ font-size:1.05rem; display:flex; align-items:center; gap:8px; margin-bottom:10px; justify-content:space-between; }
+  .panel h2 .sub-btn{ font-size:.75rem; background:var(--accent); color:#fff; border:none; border-radius:10px; padding:6px 10px; cursor:pointer; font-family:'Quicksand'; font-weight:700; }
+
+  .task-input-row{ display:flex; gap:8px; margin-bottom:10px; }
+  .task-input-row input{ flex:1; padding:10px 12px; border-radius:12px; border:2px solid var(--line); font-family:'Quicksand'; font-size:.95rem; }
+  .task-input-row input:focus{ outline:none; border-color:var(--accent); }
+  .task-input-row button{ background:var(--accent); color:#fff; border:none; border-radius:12px; padding:0 16px; font-family:'Baloo 2'; font-weight:700; cursor:pointer; }
+  .task-list{ list-style:none; margin:0; padding:0; max-height:230px; overflow-y:auto; }
+  .task-item{ display:flex; align-items:center; gap:8px; padding:8px 6px; border-radius:12px; cursor:pointer; border:2px solid transparent; }
+  .task-item:hover{ background:#FCF9F3; }
+  .task-item.active-task{ border-color:var(--accent); background:#FFF9EF; }
+  .task-item.done .task-text{ text-decoration:line-through; color:#B7B2A5; }
+  .checkbox{ width:20px; height:20px; border-radius:6px; border:2px solid var(--line); flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:.7rem; color:#fff; }
+  .checkbox.checked{ background:var(--accent); border-color:var(--accent-deep); }
+  .task-text{ flex:1; font-weight:600; font-size:.92rem; }
+  .task-count{ font-size:.75rem; color:var(--ink-soft); font-weight:700; }
+  .task-del{ background:none; border:none; color:#CFC7B6; cursor:pointer; font-size:1rem; padding:2px 4px; }
+  .task-del:hover{ color:#E06666; }
+  .empty-note{ color:var(--ink-soft); font-size:.85rem; padding:6px 2px; }
+
+  .garden-stats{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px; font-size:.85rem; }
+  .garden-stats .big{ font-family:'Baloo 2'; font-size:1.3rem; color:var(--accent-deep); }
+  .garden-bed{ background:linear-gradient(180deg,#F3FBEA,#E7F5DA); border-radius:16px; border:2px dashed #D6E8C4; min-height:110px; padding:12px; display:flex; flex-wrap:wrap; align-content:flex-start; gap:6px; position:relative; }
+  .flower{ font-size:1.6rem; display:inline-block; animation:pop .4s ease; }
+  @keyframes pop{ 0%{ transform:scale(0) rotate(-20deg); opacity:0;} 70%{ transform:scale(1.2) rotate(6deg); opacity:1;} 100%{ transform:scale(1) rotate(var(--r,0deg));} }
+  .garden-empty{ color:#9CB588; font-size:.85rem; font-weight:600; margin:auto; }
+  .decor-row{ display:flex; gap:8px; margin-top:8px; font-size:1.4rem; }
+
+  .badges{ display:flex; flex-wrap:wrap; gap:10px; }
+  .badge{ width:64px; display:flex; flex-direction:column; align-items:center; gap:4px; text-align:center; opacity:.35; filter:grayscale(1); }
+  .badge.unlocked{ opacity:1; filter:none; animation:pop .5s ease; }
+  .badge .icon{ width:46px; height:46px; border-radius:50%; background:#FFF6E3; border:2px solid var(--line); display:flex; align-items:center; justify-content:center; font-size:1.4rem; }
+  .badge .name{ font-size:.62rem; font-weight:700; color:var(--ink-soft); line-height:1.1; }
+
+  .settings-row{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding:8px 0; border-bottom:1px solid var(--line); font-weight:700; font-size:.88rem; }
+  .settings-row:last-child{ border-bottom:none; }
+  .settings-row input[type=number]{ width:60px; padding:6px; border-radius:8px; border:2px solid var(--line); font-family:'Quicksand'; font-weight:700; text-align:center; }
+  .toggle{ width:44px; height:24px; border-radius:999px; background:var(--line); position:relative; cursor:pointer; border:none; }
+  .toggle.on{ background:var(--accent); }
+  .toggle::after{ content:''; position:absolute; top:2px; left:2px; width:20px; height:20px; border-radius:50%; background:#fff; transition:transform .2s; }
+  .toggle.on::after{ transform:translateX(20px); }
+  .gear-btn{ background:none; border:none; cursor:pointer; font-size:1.3rem; }
+  footer.tip{ text-align:center; color:var(--ink-soft); font-size:.82rem; margin-top:22px; }
+  .confetti-piece{ position:fixed; top:-10px; width:8px; height:14px; opacity:.9; pointer-events:none; z-index:999; border-radius:2px; }
+  ::-webkit-scrollbar{ width:8px; } ::-webkit-scrollbar-thumb{ background:var(--line); border-radius:8px; }
+
+  /* ============ MODAL OVERLAYS (settings/store/games) ============ */
+  .overlay{ display:none; position:fixed; inset:0; background:rgba(50,40,20,.4); z-index:80; align-items:center; justify-content:center; padding:16px; }
+  .overlay.show{ display:flex; }
+  .modal{ background:#fff; border-radius:26px; max-width:520px; width:100%; max-height:88vh; overflow-y:auto; padding:20px 20px 18px; box-shadow:0 20px 50px rgba(30,20,0,.25); }
+  .modal-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:6px; }
+  .modal-head h2{ font-size:1.3rem; }
+  .modal-close{ background:none; border:none; font-size:1.3rem; cursor:pointer; color:var(--ink-soft); }
+  .modal-tabs{ display:flex; gap:8px; margin:12px 0 14px; }
+  .modal-tab{ flex:1; border:2px solid var(--line); background:#fff; border-radius:12px; padding:8px; font-family:'Baloo 2'; font-weight:700; font-size:.85rem; cursor:pointer; color:var(--ink-soft); }
+  .modal-tab.active{ background:var(--accent); color:#fff; border-color:var(--accent-deep); }
+  .currency-bar{ display:flex; gap:10px; justify-content:center; margin-bottom:8px; }
+  .currency-bar .pill{ cursor:default; }
+
+  /* store grid */
+  .store-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  @media(max-width:420px){ .store-grid{ grid-template-columns:1fr; } }
+  .store-item{ border:2px solid var(--line); border-radius:16px; padding:12px; text-align:center; background:#FFFDF9; }
+  .store-item .item-icon{ font-size:2rem; }
+  .store-item .item-name{ font-family:'Baloo 2'; font-size:.9rem; margin:4px 0 2px; }
+  .store-item .item-price{ font-size:.78rem; font-weight:700; color:var(--ink-soft); margin-bottom:8px; }
+  .store-item button{ width:100%; border:none; border-radius:10px; padding:7px; font-family:'Baloo 2'; font-weight:700; font-size:.82rem; cursor:pointer; }
+  .buy-btn{ background:var(--accent); color:#fff; }
+  .buy-btn:disabled{ background:#E4DFD3; color:#A9A296; cursor:not-allowed; }
+  .equip-btn{ background:#fff; border:2px solid var(--accent) !important; color:var(--accent-deep); }
+  .equipped-btn{ background:#EAF6DE; border:2px solid #8FBC6B !important; color:#4F7A2E; }
+
+  /* games */
+  .game-area{ background:#F6FBFF; border-radius:18px; border:2px solid var(--line); padding:14px; min-height:280px; }
+  .memory-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:8px; }
+  .memory-card{ aspect-ratio:1; background:var(--accent); border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:1.5rem; cursor:pointer; color:transparent; transition:transform .3s; user-select:none; }
+  .memory-card.flipped{ background:#fff; border:2px solid var(--line); color:inherit; }
+  .memory-card.matched{ background:#EAF6DE; border:2px solid #8FBC6B; color:inherit; cursor:default; }
+  .game-status{ text-align:center; font-weight:700; margin-bottom:10px; }
+  .game-controls{ text-align:center; margin-top:12px; }
+  .bubble-field{ position:relative; height:280px; overflow:hidden; border-radius:14px; background:linear-gradient(180deg,#DFF4FF,#F4FBFF); }
+  .bubble{ position:absolute; bottom:-40px; width:44px; height:44px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.4rem; cursor:pointer; }
+  .bubble-score{ position:absolute; top:8px; left:10px; font-family:'Baloo 2'; font-weight:700; background:#fff; border-radius:10px; padding:4px 10px; border:2px solid var(--line); }
+  .bubble-timer{ position:absolute; top:8px; right:10px; font-family:'Baloo 2'; font-weight:700; background:#fff; border-radius:10px; padding:4px 10px; border:2px solid var(--line); }
+</style>
+</head>
+<body class="mode-work">
+
+<!-- ================= LANDING ================= -->
+<div id="landing">
+  <div class="land-fox">🦊</div>
+  <h1>Focus <span>Garden</span></h1>
+  <p class="tag">A pomodoro timer with a fox friend who cheers you on, a garden that grows with every focus session, coins to spend, and mini games for your breaks.</p>
+  <div class="land-features">
+    <div class="land-chip">🎯 Focus sessions</div>
+    <div class="land-chip">🌻 Grow a garden</div>
+    <div class="land-chip">🪙 Earn coins &amp; stickers</div>
+    <div class="land-chip">🎮 Break-time games</div>
+    <div class="land-chip">🛍️ Aesthetic store</div>
+  </div>
+  <button class="land-btn" id="getStartedBtn">🚀 Get Started</button>
+  <div class="land-note">No sign-up needed — just press start and grow.</div>
+</div>
+
+<!-- ================= APP ================= -->
+<div id="app" class="hidden">
+<div class="wrap">
+
+  <header>
+    <div class="brand">
+      <svg class="logo" viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="#FFE1A8"/><circle cx="50" cy="50" r="30" fill="#FFB84D"/></svg>
+      <h1>Focus <span>Garden</span></h1>
+    </div>
+    <div class="header-right">
+      <div class="pill static">🪙 <span class="coin-num" id="coinCount">0</span></div>
+      <div class="pill static">⭐ <span class="sticker-num" id="stickerCount">0</span></div>
+      <div class="pill" id="streakPill">🔥 <span id="streakCount">0</span> today
+        <div class="popover hidden" id="streakPopover"></div>
+      </div>
+      <button class="icon-btn" id="gamesBtn" title="Games">🎮</button>
+      <button class="icon-btn" id="storeBtn" title="Store">🛍️</button>
+      <button class="icon-btn" id="gearBtn" title="Settings">⚙️</button>
+    </div>
+  </header>
+
+  <div class="tabs">
+    <button class="tab active" data-mode="work">🎯 Focus</button>
+    <button class="tab" data-mode="short">🍃 Short Break</button>
+    <button class="tab" data-mode="long">🌤️ Long Break</button>
+  </div>
+
+  <div class="stage">
+    <div class="timer-block">
+      <div class="ring-wrap">
+        <svg class="ring" viewBox="0 0 240 240">
+          <circle class="ring-bg" cx="120" cy="120" r="104"></circle>
+          <circle class="ring-fg" id="ringFg" cx="120" cy="120" r="104" stroke-dasharray="653.45" stroke-dashoffset="0"></circle>
+        </svg>
+        <div class="ring-center">
+          <div class="time" id="timeDisplay">25:00</div>
+          <div class="mode-label" id="modeLabel">Focus Time</div>
+          <div class="task-tag" id="taskTag"></div>
+        </div>
+      </div>
+      <div class="controls">
+        <button class="btn btn-primary" id="startBtn">▶ Start</button>
+        <button class="btn btn-ghost btn-icon" id="resetBtn" title="Reset">↺</button>
+        <button class="btn btn-ghost btn-icon" id="skipBtn" title="Skip">⏭</button>
+        <button class="btn btn-ghost btn-icon" id="soundBtn" title="Toggle sound">🔊</button>
+      </div>
+      <div class="dots" id="dots"></div>
+    </div>
+
+    <div class="fox-box">
+      <svg class="fox-svg" viewBox="0 0 200 200" id="foxSvg">
+        <text class="zzz" x="145" y="30">Z z z</text>
+        <g class="tail">
+          <path d="M40 140 Q10 120 20 90 Q28 100 45 108 Q35 122 40 140Z" fill="#F79A1E"/>
+          <path d="M22 92 Q18 100 24 106 Q30 100 30 94Z" fill="#FFF6EC"/>
+        </g>
+        <g class="fox-body-group">
+          <ellipse cx="100" cy="150" rx="46" ry="34" fill="#FFB84D"/>
+          <ellipse cx="100" cy="158" rx="26" ry="18" fill="#FFF6EC"/>
+          <polygon points="65,55 45,15 85,45" fill="#FFB84D"/>
+          <polygon points="70,45 60,25 82,42" fill="#F7D9B0"/>
+          <polygon points="135,55 155,15 115,45" fill="#FFB84D"/>
+          <polygon points="130,45 140,25 118,42" fill="#F7D9B0"/>
+          <circle cx="100" cy="90" r="48" fill="#FFB84D"/>
+          <ellipse cx="100" cy="108" rx="26" ry="20" fill="#FFF6EC"/>
+          <ellipse id="cheekL" cx="66" cy="98" rx="9" ry="6" fill="#FF8FA3" opacity="0"/>
+          <ellipse id="cheekR" cx="134" cy="98" rx="9" ry="6" fill="#FF8FA3" opacity="0"/>
+          <g id="eyesNormal">
+            <ellipse class="blink" cx="82" cy="85" rx="6" ry="8" fill="#33313D"/>
+            <ellipse class="blink" cx="118" cy="85" rx="6" ry="8" fill="#33313D"/>
+          </g>
+          <g id="eyesHappy" style="display:none;">
+            <path d="M74 88 Q82 78 90 88" stroke="#33313D" stroke-width="4" fill="none" stroke-linecap="round"/>
+            <path d="M110 88 Q118 78 126 88" stroke="#33313D" stroke-width="4" fill="none" stroke-linecap="round"/>
+          </g>
+          <g id="eyesSleepy" style="display:none;">
+            <path d="M74 87 Q82 91 90 87" stroke="#33313D" stroke-width="4" fill="none" stroke-linecap="round"/>
+            <path d="M110 87 Q118 91 126 87" stroke="#33313D" stroke-width="4" fill="none" stroke-linecap="round"/>
+          </g>
+          <polygon points="94,100 106,100 100,110" fill="#33313D"/>
+          <path id="mouthNormal" d="M92 112 Q100 118 108 112" stroke="#33313D" stroke-width="3" fill="none" stroke-linecap="round"/>
+          <path id="mouthFocus" d="M94 114 Q100 112 106 114" stroke="#33313D" stroke-width="3" fill="none" stroke-linecap="round" style="display:none;"/>
+          <path id="mouthHappy" d="M88 111 Q100 126 112 111" stroke="#33313D" stroke-width="3.5" fill="#FF8FA3" stroke-linecap="round" style="display:none;"/>
+
+          <!-- Outfit layer (drawn on top of face) -->
+          <g id="outfitLayer">
+            <g id="outfit-tophat" style="display:none;">
+              <rect x="78" y="20" width="44" height="10" rx="3" fill="#2E2A33"/>
+              <rect x="86" y="0" width="28" height="24" rx="3" fill="#2E2A33"/>
+              <rect x="86" y="18" width="28" height="5" fill="#FF8FA3"/>
+            </g>
+            <g id="outfit-bowtie" style="display:none;">
+              <polygon points="80,168 96,160 96,176" fill="#FF6B6B"/>
+              <polygon points="120,168 104,160 104,176" fill="#FF6B6B"/>
+              <circle cx="100" cy="168" r="5" fill="#C94F4F"/>
+            </g>
+            <g id="outfit-sunglasses" style="display:none;">
+              <rect x="68" y="78" width="24" height="14" rx="6" fill="#2E2A33"/>
+              <rect x="108" y="78" width="24" height="14" rx="6" fill="#2E2A33"/>
+              <rect x="92" y="82" width="16" height="4" fill="#2E2A33"/>
+            </g>
+            <g id="outfit-crown" style="display:none;">
+              <polygon points="76,32 84,10 92,28 100,6 108,28 116,10 124,32" fill="#FFD166" stroke="#E0A800" stroke-width="2"/>
+              <circle cx="100" cy="14" r="3" fill="#FF6B6B"/>
+            </g>
+            <g id="outfit-scarf" style="display:none;">
+              <path d="M66 128 Q100 148 134 128 L134 140 Q100 158 66 140 Z" fill="#6EC6FF"/>
+              <rect x="92" y="138" width="12" height="26" rx="3" fill="#6EC6FF"/>
+            </g>
+          </g>
+        </g>
+      </svg>
+      <div class="fox-bubble" id="foxLine">Ready when you are! 🌱</div>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="panel">
+      <h2>📝 Tasks</h2>
+      <div class="task-input-row">
+        <input type="text" id="taskInput" placeholder="What are we focusing on?" maxlength="60">
+        <button id="addTaskBtn">Add</button>
+      </div>
+      <ul class="task-list" id="taskList"></ul>
+      <div class="empty-note" id="taskEmpty">No tasks yet — add one and click it to make it active 🎯</div>
+    </div>
+
+    <div class="panel">
+      <h2>🌻 Your Garden <button class="sub-btn" id="storeBtnInline">Visit Store</button></h2>
+      <div class="garden-stats">
+        <span>Every finished focus session grows something new</span>
+        <span class="big"><span id="gardenCount">0</span> grown</span>
+      </div>
+      <div class="garden-bed" id="gardenBed">
+        <div class="garden-empty" id="gardenEmpty">Your garden bed is empty. Finish a focus session to plant something!</div>
+      </div>
+      <div class="decor-row" id="decorRow"></div>
+    </div>
+  </div>
+
+  <div class="panel" style="margin-top:18px;">
+    <h2>🏅 Badges</h2>
+    <div class="badges" id="badges"></div>
+  </div>
+
+  <footer class="tip">Tip: press <b>Space</b> to start or pause. Click 🔥 to see your streak, or 🎮 for a quick break game.</footer>
+</div>
+</div>
+
+<!-- Settings modal -->
+<div id="settingsOverlay" class="overlay">
+  <div class="modal" style="max-width:360px;">
+    <div class="modal-head"><h2>⚙️ Settings</h2><button class="modal-close" id="closeSettings">✕</button></div>
+    <div class="settings-row"><span>Focus minutes</span><input type="number" id="setWork" min="1" max="90" value="25"></div>
+    <div class="settings-row"><span>Short break minutes</span><input type="number" id="setShort" min="1" max="30" value="5"></div>
+    <div class="settings-row"><span>Long break minutes</span><input type="number" id="setLong" min="1" max="60" value="15"></div>
+    <div class="settings-row"><span>Long break every</span><input type="number" id="setInterval" min="2" max="8" value="4"></div>
+    <div class="settings-row"><span>Auto-start next session</span><button class="toggle" id="setAuto"></button></div>
+    <div style="display:flex; gap:10px; margin-top:14px;">
+      <button class="btn btn-primary" id="saveSettings" style="flex:1;">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Store modal -->
+<div id="storeOverlay" class="overlay">
+  <div class="modal">
+    <div class="modal-head"><h2>🛍️ Store</h2><button class="modal-close" id="closeStore">✕</button></div>
+    <div class="currency-bar">
+      <div class="pill">🪙 <span id="storeCoin">0</span></div>
+      <div class="pill">⭐ <span id="storeSticker">0</span></div>
+    </div>
+    <div class="modal-tabs">
+      <button class="modal-tab active" data-store="theme">🎨 Themes</button>
+      <button class="modal-tab" data-store="outfit">🦊 Outfits</button>
+      <button class="modal-tab" data-store="decor">🪴 Garden Decor</button>
+    </div>
+    <div class="store-grid" id="storeGrid"></div>
+  </div>
+</div>
+
+<!-- Games modal -->
+<div id="gamesOverlay" class="overlay">
+  <div class="modal">
+    <div class="modal-head"><h2>🎮 Break Games</h2><button class="modal-close" id="closeGames">✕</button></div>
+    <div class="modal-tabs">
+      <button class="modal-tab active" data-game="memory">🧠 Memory Match</button>
+      <button class="modal-tab" data-game="bubble">🫧 Bubble Pop</button>
+    </div>
+    <div id="gameMemory" class="game-area">
+      <div class="game-status" id="memoryStatus">Find all the matching pairs!</div>
+      <div class="memory-grid" id="memoryGrid"></div>
+      <div class="game-controls"><button class="btn btn-ghost" id="memoryRestart">🔄 New Game</button></div>
+    </div>
+    <div id="gameBubble" class="game-area hidden">
+      <div class="bubble-field" id="bubbleField">
+        <div class="bubble-score">⭐ <span id="bubbleScore">0</span></div>
+        <div class="bubble-timer">⏱ <span id="bubbleTime">20</span>s</div>
+      </div>
+      <div class="game-controls"><button class="btn btn-primary" id="bubbleStart">▶ Start Game</button></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const FOX_LINES = {
+    work_start: ["Let's do this! 🎯","I believe in you!","Focus mode: engaged.","One task at a time 🦊"],
+    work_tick: ["You're doing great!","Keep going, almost there!","Stay in the zone 🌟","I'm cheering for you!"],
+    work_done: ["Woohoo! Nailed it! 🎉 +10 coins","Session complete! You're on fire 🔥","Look at you go!","Amazing focus!"],
+    short_start: ["Stretch those legs! 🍃","Quick breather time.","Sip some water 💧"],
+    long_start: ["You earned a real rest 🌤️","Big break time — relax!","Go recharge, hero."],
+    break_done: ["Break's over — ready?","Feeling refreshed?","Let's get back to it!"],
+    paused: ["Taking a pause? I'll wait 🦊","No rush, I'm here."],
+    idle: ["Ready when you are! 🌱","Pick a task and let's grow something."]
+  };
+
+  const THEMES = [
+    {id:'meadow', name:'Meadow', price:0, currency:'coins', icon:'🌼', sky:['#CFEFFF','#FFF6E5'], flowers:['🌸','🌻','🌷','🌼','🌹','🍀','🌺','🪻']},
+    {id:'sunset', name:'Sunset Dunes', price:150, currency:'coins', icon:'🌅', sky:['#FFD3A5','#FDBFAE'], flowers:['🌺','🌴','🦩','🍑','🌵']},
+    {id:'ocean', name:'Ocean Breeze', price:150, currency:'coins', icon:'🌊', sky:['#A8E6FF','#D9FFF5'], flowers:['🐚','⭐','🐠','🪸','🌊']},
+    {id:'bubblegum', name:'Bubblegum', price:5, currency:'stickers', icon:'🍬', sky:['#FFD6EC','#E9E0FF'], flowers:['🍭','🍬','🧁','🍡','🎀']},
+  ];
+  const OUTFITS = [
+    {id:'none', name:'No Outfit', price:0, currency:'coins', icon:'🦊'},
+    {id:'tophat', name:'Top Hat', price:80, currency:'coins', icon:'🎩'},
+    {id:'bowtie', name:'Bow Tie', price:60, currency:'coins', icon:'🎀'},
+    {id:'sunglasses', name:'Sunglasses', price:90, currency:'coins', icon:'😎'},
+    {id:'crown', name:'Royal Crown', price:3, currency:'stickers', icon:'👑'},
+    {id:'scarf', name:'Cozy Scarf', price:70, currency:'coins', icon:'🧣'},
+  ];
+  const DECOR = [
+    {id:'bench', name:'Garden Bench', price:60, currency:'coins', icon:'🪑'},
+    {id:'fountain', name:'Fountain', price:120, currency:'coins', icon:'⛲'},
+    {id:'birdhouse', name:'Birdhouse', price:70, currency:'coins', icon:'🏡'},
+    {id:'butterflies', name:'Butterflies', price:2, currency:'stickers', icon:'🦋'},
+    {id:'teddy', name:'Teddy Bear', price:50, currency:'coins', icon:'🧸'},
+  ];
+  const STORE_DATA = {theme:THEMES, outfit:OUTFITS, decor:DECOR};
+
+  const state = {
+    mode:'work',
+    durations:{ work:25, short:5, long:15 },
+    longEvery:4,
+    timeLeft:25*60,
+    totalTime:25*60,
+    running:false,
+    sessionsToday:0,
+    cyclePos:0,
+    tasks:[],
+    activeTaskId:null,
+    garden:[],
+    tasksCompleted:0,
+    totalSessionsEver:0,
+    soundOn:true,
+    autoStart:false,
+    unlocked:new Set(),
+    timer:null,
+    coins:0,
+    stickers:0,
+    ownedThemes:new Set(['meadow']),
+    equippedTheme:'meadow',
+    ownedOutfits:new Set(['none']),
+    equippedOutfit:'none',
+    ownedDecor:new Set(),
+    equippedDecor:new Set(),
+    currentFlowerSet:['🌸','🌻','🌷','🌼','🌹','🍀','🌺','🪻'],
+    bestDay:0
+  };
+
+  const $ = id => document.getElementById(id);
+  const els = {
+    body:document.body,
+    time:$('timeDisplay'), modeLabel:$('modeLabel'), ring:$('ringFg'),
+    startBtn:$('startBtn'), resetBtn:$('resetBtn'), skipBtn:$('skipBtn'), soundBtn:$('soundBtn'),
+    dots:$('dots'), streak:$('streakCount'), taskTag:$('taskTag'),
+    taskInput:$('taskInput'), addTaskBtn:$('addTaskBtn'), taskList:$('taskList'), taskEmpty:$('taskEmpty'),
+    gardenBed:$('gardenBed'), gardenEmpty:$('gardenEmpty'), gardenCount:$('gardenCount'), decorRow:$('decorRow'),
+    badges:$('badges'), foxLine:$('foxLine'),
+    cheekL:$('cheekL'), cheekR:$('cheekR'),
+    eyesNormal:$('eyesNormal'), eyesHappy:$('eyesHappy'), eyesSleepy:$('eyesSleepy'),
+    mouthNormal:$('mouthNormal'), mouthFocus:$('mouthFocus'), mouthHappy:$('mouthHappy'),
+    gear:$('gearBtn'), settingsOverlay:$('settingsOverlay'),
+    setWork:$('setWork'), setShort:$('setShort'), setLong:$('setLong'), setInterval:$('setInterval'), setAuto:$('setAuto'),
+    coinCount:$('coinCount'), stickerCount:$('stickerCount'),
+    streakPill:$('streakPill'), streakPopover:$('streakPopover'),
+    storeBtn:$('storeBtn'), storeBtnInline:$('storeBtnInline'), storeOverlay:$('storeOverlay'),
+    storeCoin:$('storeCoin'), storeSticker:$('storeSticker'), storeGrid:$('storeGrid'),
+    gamesBtn:$('gamesBtn'), gamesOverlay:$('gamesOverlay')
+  };
+
+  const RING_C = 2*Math.PI*104;
+  els.ring.setAttribute('stroke-dasharray', RING_C.toFixed(2));
+
+  const BADGES = [
+    {id:'first', icon:'🌱', name:'First Sprout', test:()=>state.totalSessionsEver>=1},
+    {id:'roll', icon:'🔥', name:'On a Roll', test:()=>state.sessionsToday>=4},
+    {id:'gardenfull', icon:'🌻', name:'Garden Full', test:()=>state.garden.length>=10},
+    {id:'taskmaster', icon:'📝', name:'Task Master', test:()=>state.tasksCompleted>=5},
+    {id:'marathon', icon:'🏃', name:'Marathoner', test:()=>state.totalSessionsEver>=8},
+    {id:'bestfriend', icon:'🦊', name:"Fox's Best Friend", test:()=>state.totalSessionsEver>=25},
+  ];
+
+  function addCoins(n){ state.coins += n; render(); }
+  function addStickers(n){ state.stickers += n; render(); }
+
+  function renderBadges(){
+    els.badges.innerHTML='';
+    BADGES.forEach(b=>{
+      const unlocked = state.unlocked.has(b.id);
+      const div = document.createElement('div');
+      div.className = 'badge'+(unlocked?' unlocked':'');
+      div.innerHTML = `<div class="icon">${b.icon}</div><div class="name">${b.name}</div>`;
+      els.badges.appendChild(div);
+    });
+  }
+  function checkBadges(){
+    let newly=[];
+    BADGES.forEach(b=>{
+      if(!state.unlocked.has(b.id) && b.test()){ state.unlocked.add(b.id); newly.push(b); }
+    });
+    if(newly.length){
+      renderBadges();
+      addStickers(newly.length);
+      setFoxLine(`New badge: ${newly[0].icon} ${newly[0].name}! +${newly.length}⭐`);
+      burstConfetti();
+    }
+  }
+
+  function pad(n){ return n.toString().padStart(2,'0'); }
+  function fmt(sec){ return pad(Math.floor(sec/60))+':'+pad(sec%60); }
+  function modeDuration(m){ return state.durations[m]*60; }
+  function setFoxLine(text){ els.foxLine.textContent = text; }
+  function randomLine(key){ const arr = FOX_LINES[key]; return arr[Math.floor(Math.random()*arr.length)]; }
+
+  function setFoxExpression(exp){
+    [els.eyesNormal,els.eyesHappy,els.eyesSleepy,els.mouthNormal,els.mouthFocus,els.mouthHappy].forEach(e=>e.style.display='none');
+    els.cheekL.style.opacity=0; els.cheekR.style.opacity=0;
+    if(exp==='focus'){ els.eyesNormal.style.display='block'; els.mouthFocus.style.display='block'; }
+    else if(exp==='happy'){ els.eyesHappy.style.display='block'; els.mouthHappy.style.display='block'; els.cheekL.style.opacity=1; els.cheekR.style.opacity=1; }
+    else if(exp==='sleepy'){ els.eyesSleepy.style.display='block'; els.mouthNormal.style.display='block'; }
+    else { els.eyesNormal.style.display='block'; els.mouthNormal.style.display='block'; }
+  }
+
+  function renderOutfit(){
+    ['tophat','bowtie','sunglasses','crown','scarf'].forEach(id=>{
+      const g = $('outfit-'+id);
+      if(g) g.style.display = (state.equippedOutfit===id) ? 'block' : 'none';
+    });
+  }
+
+  function applyTheme(){
+    const theme = THEMES.find(t=>t.id===state.equippedTheme) || THEMES[0];
+    document.documentElement.style.setProperty('--sky-top', theme.sky[0]);
+    document.documentElement.style.setProperty('--sky-bottom', theme.sky[1]);
+    els.body.style.background = `linear-gradient(180deg, ${theme.sky[0]} 0%, ${theme.sky[1]} 55%, #EAF6DE 100%)`;
+    state.currentFlowerSet = theme.flowers;
+  }
+
+  function updateRing(){
+    const frac = state.timeLeft/state.totalTime;
+    els.ring.setAttribute('stroke-dashoffset', (RING_C*(1-frac)).toFixed(2));
+  }
+
+  function updateModeUI(){
+    els.body.classList.remove('mode-work','mode-short','mode-long');
+    els.body.classList.add('mode-'+state.mode);
+    document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active', t.dataset.mode===state.mode));
+    const labelMap = {work:'Focus Time', short:'Short Break', long:'Long Break'};
+    els.modeLabel.textContent = labelMap[state.mode];
+    setFoxExpression(state.mode==='work' ? (state.running?'focus':'idle') : 'sleepy');
+    const activeTask = state.tasks.find(t=>t.id===state.activeTaskId);
+    els.taskTag.textContent = (state.mode==='work' && activeTask) ? '🎯 '+activeTask.text : '';
+  }
+
+  function updateDots(){
+    els.dots.innerHTML='';
+    const total = state.longEvery*2;
+    for(let i=0;i<total;i++){
+      const d = document.createElement('div');
+      d.className='dot'+(i<state.cyclePos?' filled':'')+(i===state.cyclePos?' current':'');
+      els.dots.appendChild(d);
+    }
+  }
+
+  function render(){
+    els.time.textContent = fmt(state.timeLeft);
+    updateRing(); updateModeUI(); updateDots();
+    els.streak.textContent = state.sessionsToday;
+    els.startBtn.textContent = state.running ? '⏸ Pause' : '▶ Start';
+    els.soundBtn.textContent = state.soundOn ? '🔊' : '🔇';
+    els.coinCount.textContent = state.coins;
+    els.stickerCount.textContent = state.stickers;
+    renderTasks(); renderGarden(); renderOutfit(); renderDecor();
+  }
+
+  function renderTasks(){
+    els.taskList.innerHTML='';
+    els.taskEmpty.style.display = state.tasks.length? 'none':'block';
+    state.tasks.forEach(t=>{
+      const li = document.createElement('li');
+      li.className = 'task-item'+(t.done?' done':'')+(t.id===state.activeTaskId?' active-task':'');
+      li.innerHTML = `
+        <div class="checkbox ${t.done?'checked':''}">${t.done?'✓':''}</div>
+        <div class="task-text">${escapeHtml(t.text)}</div>
+        <div class="task-count">${t.pomodoros>0? '🍅 '+t.pomodoros : ''}</div>
+        <button class="task-del">✕</button>
+      `;
+      li.querySelector('.checkbox').addEventListener('click', (e)=>{ e.stopPropagation(); toggleDone(t.id); });
+      li.querySelector('.task-del').addEventListener('click', (e)=>{ e.stopPropagation(); deleteTask(t.id); });
+      li.addEventListener('click', ()=>{ state.activeTaskId = t.id; render(); });
+      els.taskList.appendChild(li);
+    });
+  }
+  function escapeHtml(s){ const d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
+  function toggleDone(id){
+    const t = state.tasks.find(x=>x.id===id); if(!t) return;
+    t.done = !t.done;
+    if(t.done){ state.tasksCompleted++; checkBadges(); }
+    render();
+  }
+  function deleteTask(id){
+    state.tasks = state.tasks.filter(t=>t.id!==id);
+    if(state.activeTaskId===id) state.activeTaskId=null;
+    render();
+  }
+
+  function renderGarden(){
+    els.gardenCount.textContent = state.garden.length;
+    els.gardenEmpty.style.display = state.garden.length? 'none':'block';
+    els.gardenBed.querySelectorAll('.flower').forEach(f=>f.remove());
+    state.garden.forEach(f=>{
+      const span = document.createElement('span');
+      span.className='flower'; span.textContent = f.emoji;
+      span.style.setProperty('--r', f.rot+'deg'); span.style.transform = 'rotate('+f.rot+'deg)';
+      els.gardenBed.appendChild(span);
+    });
+  }
+  function renderDecor(){
+    els.decorRow.innerHTML='';
+    DECOR.filter(d=>state.equippedDecor.has(d.id)).forEach(d=>{
+      const s = document.createElement('span'); s.textContent=d.icon; s.title=d.name; els.decorRow.appendChild(s);
+    });
+  }
+  function growFlower(){
+    const set = state.currentFlowerSet;
+    const emoji = set[Math.floor(Math.random()*set.length)];
+    const rot = Math.floor(Math.random()*30)-15;
+    state.garden.push({emoji, rot});
+    renderGarden();
+  }
+
+  // ---------- Timer engine ----------
+  function tick(){
+    if(state.timeLeft>0){
+      state.timeLeft--; els.time.textContent = fmt(state.timeLeft); updateRing();
+      if(state.timeLeft===0){ sessionComplete(); }
+      else if(state.timeLeft % 240 === 0 && state.mode==='work'){ setFoxLine(randomLine('work_tick')); }
+    }
+  }
+  function start(){
+    if(state.running) return;
+    state.running=true; els.body.classList.remove('paused');
+    state.timer = setInterval(tick,1000);
+    setFoxExpression(state.mode==='work'?'focus':'sleepy');
+    setFoxLine(randomLine(state.mode==='work'?'work_start':(state.mode==='short'?'short_start':'long_start')));
+    render();
+  }
+  function pause(){
+    state.running=false; els.body.classList.add('paused'); clearInterval(state.timer);
+    setFoxLine(randomLine('paused')); setFoxExpression('idle'); render();
+  }
+  function toggleStart(){ state.running? pause() : start(); }
+  function reset(){ pause(); state.timeLeft = modeDuration(state.mode); state.totalTime = state.timeLeft; setFoxLine(randomLine('idle')); render(); }
+  function switchMode(mode, {advanceCycle=false}={}){
+    state.mode = mode; state.timeLeft = modeDuration(mode); state.totalTime = state.timeLeft;
+    if(advanceCycle) state.cyclePos = (state.cyclePos+1) % (state.longEvery*2);
+    render();
+  }
+  function sessionComplete(){
+    clearInterval(state.timer); state.running=false; playChime();
+    if(state.mode==='work'){
+      state.sessionsToday++; state.totalSessionsEver++;
+      state.bestDay = Math.max(state.bestDay, state.sessionsToday);
+      growFlower(); addCoins(10);
+      const activeTask = state.tasks.find(t=>t.id===state.activeTaskId);
+      if(activeTask){ activeTask.pomodoros++; }
+      setFoxExpression('happy'); setFoxLine(randomLine('work_done')); burstConfetti(); checkBadges();
+      const nextIsLong = state.sessionsToday % state.longEvery === 0;
+      switchMode(nextIsLong?'long':'short', {advanceCycle:true});
+    } else {
+      addCoins(state.mode==='long'?5:3);
+      setFoxExpression('idle'); setFoxLine(randomLine('break_done'));
+      switchMode('work', {advanceCycle:true});
+    }
+    render();
+    if(state.autoStart){ setTimeout(start, 900); }
+  }
+
+  // ---------- Sound ----------
+  let audioCtx;
+  function playTone(freq, t0, dur, vol){
+    const o = audioCtx.createOscillator(); const g = audioCtx.createGain();
+    o.type='sine'; o.frequency.value=freq; o.connect(g); g.connect(audioCtx.destination);
+    g.gain.setValueAtTime(0.0001,t0); g.gain.exponentialRampToValueAtTime(vol,t0+0.02); g.gain.exponentialRampToValueAtTime(0.0001,t0+dur);
+    o.start(t0); o.stop(t0+dur+0.05);
+  }
+  function playChime(){
+    if(!state.soundOn) return;
+    try{
+      audioCtx = audioCtx || new (window.AudioContext||window.webkitAudioContext)();
+      const notes = state.mode==='work' ? [523.25,659.25,783.99] : [659.25,523.25];
+      notes.forEach((freq,i)=> playTone(freq, audioCtx.currentTime + i*0.15, 0.35, 0.2));
+    }catch(e){}
+  }
+  function playBlip(freq){
+    if(!state.soundOn) return;
+    try{ audioCtx = audioCtx || new (window.AudioContext||window.webkitAudioContext)(); playTone(freq, audioCtx.currentTime, 0.15, 0.15); }catch(e){}
+  }
+
+  // ---------- Confetti ----------
+  function burstConfetti(){
+    const colors=['#FFB84D','#7FD8BE','#B8A6E8','#FF8FA3','#6EC6FF','#FFD166'];
+    for(let i=0;i<28;i++){
+      const p=document.createElement('div'); p.className='confetti-piece';
+      p.style.left=(45+Math.random()*10)+'vw'; p.style.background=colors[Math.floor(Math.random()*colors.length)];
+      p.style.transform='rotate('+(Math.random()*360)+'deg)'; document.body.appendChild(p);
+      const dx=(Math.random()-0.5)*300; const dur=1200+Math.random()*900;
+      p.animate([{transform:p.style.transform+' translate(0,0)', opacity:1},{transform:`rotate(${Math.random()*720}deg) translate(${dx}px, 100vh)`, opacity:0}], {duration:dur, easing:'cubic-bezier(.3,.6,.7,1)'});
+      setTimeout(()=>p.remove(), dur+50);
+    }
+  }
+
+  // ---------- Landing ----------
+  $('getStartedBtn').addEventListener('click', ()=>{
+    $('landing').classList.add('hidden');
+    $('app').classList.remove('hidden');
+    burstConfetti();
+  });
+
+  // ---------- Tabs / controls ----------
+  document.querySelectorAll('.tab').forEach(t=>{
+    t.addEventListener('click', ()=>{ if(state.running) pause(); switchMode(t.dataset.mode); setFoxLine(randomLine('idle')); });
+  });
+  els.startBtn.addEventListener('click', toggleStart);
+  els.resetBtn.addEventListener('click', reset);
+  els.skipBtn.addEventListener('click', ()=>{ pause(); state.timeLeft=1; start(); });
+  els.soundBtn.addEventListener('click', ()=>{ state.soundOn=!state.soundOn; render(); });
+  els.addTaskBtn.addEventListener('click', addTask);
+  els.taskInput.addEventListener('keydown', (e)=>{ if(e.key==='Enter') addTask(); });
+  function addTask(){
+    const text = els.taskInput.value.trim(); if(!text) return;
+    const t = {id:Date.now(), text, done:false, pomodoros:0};
+    state.tasks.push(t); if(!state.activeTaskId) state.activeTaskId = t.id;
+    els.taskInput.value=''; render();
+  }
+  document.addEventListener('keydown', (e)=>{
+    if(e.code==='Space' && document.activeElement.tagName!=='INPUT' && !$('app').classList.contains('hidden')){
+      e.preventDefault(); toggleStart();
+    }
+  });
+
+  // ---------- Settings ----------
+  els.gear.addEventListener('click', ()=>{
+    els.setWork.value=state.durations.work; els.setShort.value=state.durations.short; els.setLong.value=state.durations.long;
+    els.setInterval.value=state.longEvery; els.setAuto.classList.toggle('on', state.autoStart);
+    els.settingsOverlay.classList.add('show');
+  });
+  $('closeSettings').addEventListener('click', ()=> els.settingsOverlay.classList.remove('show'));
+  els.setAuto.addEventListener('click', ()=> els.setAuto.classList.toggle('on'));
+  $('saveSettings').addEventListener('click', ()=>{
+    state.durations.work = Math.max(1, parseInt(els.setWork.value)||25);
+    state.durations.short = Math.max(1, parseInt(els.setShort.value)||5);
+    state.durations.long = Math.max(1, parseInt(els.setLong.value)||15);
+    state.longEvery = Math.max(2, parseInt(els.setInterval.value)||4);
+    state.autoStart = els.setAuto.classList.contains('on');
+    els.settingsOverlay.classList.remove('show');
+    pause(); state.timeLeft = modeDuration(state.mode); state.totalTime = state.timeLeft; render();
+  });
+
+  // ---------- Streak popover ----------
+  const DAY_LABELS = ['M','T','W','T','F','S','S'];
+  function renderStreakPopover(){
+    const todayIdx = (new Date().getDay()+6)%7; // Mon=0
+    let rowHtml = '<div class="weekrow">';
+    for(let i=0;i<7;i++){
+      const isToday = i===todayIdx;
+      const filled = isToday && state.sessionsToday>0;
+      rowHtml += `<div class="weekday"><div class="weekcircle${filled?' filled':''}${isToday?' today':''}">${filled?'✓':DAY_LABELS[i]}</div>${DAY_LABELS[i]}</div>`;
+    }
+    rowHtml += '</div>';
+    const streakNum = state.sessionsToday>0 ? 1 : 0;
+    els.streakPopover.innerHTML = `
+      <div class="flame">🔥</div>
+      <div class="streaknum">${streakNum}</div>
+      <div class="streaklabel">day streak — keep it going!</div>
+      ${rowHtml}
+      <div class="pop-stats">
+        <div>Today<b>${state.sessionsToday}</b></div>
+        <div>Best day<b>${state.bestDay}</b></div>
+        <div>All-time<b>${state.totalSessionsEver}</b></div>
+      </div>`;
+  }
+  els.streakPill.addEventListener('click', (e)=>{
+    renderStreakPopover();
+    els.streakPopover.classList.toggle('hidden');
+  });
+  document.addEventListener('click', (e)=>{
+    if(!els.streakPill.contains(e.target)) els.streakPopover.classList.add('hidden');
+  });
+
+  // ---------- Store ----------
+  function openStore(){ renderStore('theme'); els.storeOverlay.classList.add('show'); }
+  els.storeBtn.addEventListener('click', openStore);
+  els.storeBtnInline.addEventListener('click', openStore);
+  $('closeStore').addEventListener('click', ()=> els.storeOverlay.classList.remove('show'));
+  document.querySelectorAll('#storeOverlay .modal-tab').forEach(tab=>{
+    tab.addEventListener('click', ()=>{
+      document.querySelectorAll('#storeOverlay .modal-tab').forEach(x=>x.classList.remove('active'));
+      tab.classList.add('active'); renderStore(tab.dataset.store);
+    });
+  });
+  function ownedSetFor(cat){ return cat==='theme'?state.ownedThemes: cat==='outfit'?state.ownedOutfits: state.ownedDecor; }
+  function equippedFor(cat, id){
+    if(cat==='theme') return state.equippedTheme===id;
+    if(cat==='outfit') return state.equippedOutfit===id;
+    return state.equippedDecor.has(id);
+  }
+  function renderStore(cat){
+    els.storeCoin.textContent = state.coins; els.storeSticker.textContent = state.stickers;
+    els.storeGrid.innerHTML='';
+    const owned = ownedSetFor(cat);
+    STORE_DATA[cat].forEach(item=>{
+      const isOwned = owned.has(item.id);
+      const isEquipped = equippedFor(cat, item.id);
+      const priceLabel = item.price===0 ? 'Free' : `${item.price} ${item.currency==='coins'?'🪙':'⭐'}`;
+      const card = document.createElement('div'); card.className='store-item';
+      let btnHtml;
+      if(!isOwned){
+        const afford = item.currency==='coins' ? state.coins>=item.price : state.stickers>=item.price;
+        btnHtml = `<button class="buy-btn" ${afford?'':'disabled'}>Buy — ${priceLabel}</button>`;
+      } else if(isEquipped){
+        btnHtml = `<button class="equipped-btn">✓ Equipped</button>`;
+      } else {
+        btnHtml = `<button class="equip-btn">Equip</button>`;
+      }
+      card.innerHTML = `<div class="item-icon">${item.icon}</div><div class="item-name">${item.name}</div><div class="item-price">${isOwned? (isEquipped?'In use':'Owned') : priceLabel}</div>${btnHtml}`;
+      const btn = card.querySelector('button');
+      btn.addEventListener('click', ()=>{
+        if(!isOwned){
+          if(item.currency==='coins'){ if(state.coins<item.price) return; state.coins-=item.price; }
+          else { if(state.stickers<item.price) return; state.stickers-=item.price; }
+          owned.add(item.id);
+          equip(cat, item.id);
+        } else {
+          equip(cat, item.id);
+        }
+        render(); renderStore(cat);
+      });
+      els.storeGrid.appendChild(card);
+    });
+  }
+  function equip(cat, id){
+    if(cat==='theme'){ state.equippedTheme=id; applyTheme(); }
+    else if(cat==='outfit'){ state.equippedOutfit=id; renderOutfit(); }
+    else { if(state.equippedDecor.has(id)) state.equippedDecor.delete(id); else state.equippedDecor.add(id); renderDecor(); }
+  }
+
+  // ---------- Games ----------
+  els.gamesBtn.addEventListener('click', ()=>{ els.gamesOverlay.classList.add('show'); setupMemoryGame(); });
+  $('closeGames').addEventListener('click', ()=>{ els.gamesOverlay.classList.remove('show'); stopBubbleGame(); });
+  document.querySelectorAll('#gamesOverlay .modal-tab').forEach(tab=>{
+    tab.addEventListener('click', ()=>{
+      document.querySelectorAll('#gamesOverlay .modal-tab').forEach(x=>x.classList.remove('active'));
+      tab.classList.add('active');
+      const g = tab.dataset.game;
+      $('gameMemory').classList.toggle('hidden', g!=='memory');
+      $('gameBubble').classList.toggle('hidden', g!=='bubble');
+      if(g==='memory') setupMemoryGame(); else stopBubbleGame();
+    });
+  });
+
+  // Memory match
+  const MEMORY_ICONS = ['🌸','🍀','⭐','🐚','🍄','🦋','🌈','🍁'];
+  let memoryState = null;
+  function setupMemoryGame(){
+    let deck = [...MEMORY_ICONS, ...MEMORY_ICONS];
+    for(let i=deck.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [deck[i],deck[j]]=[deck[j],deck[i]]; }
+    memoryState = { deck, flipped:[], matched:new Set(), moves:0, done:false };
+    $('memoryStatus').textContent = 'Find all the matching pairs!';
+    const grid = $('memoryGrid'); grid.innerHTML='';
+    deck.forEach((icon, idx)=>{
+      const card = document.createElement('div'); card.className='memory-card'; card.dataset.idx=idx; card.textContent=icon;
+      card.addEventListener('click', ()=> flipCard(idx));
+      grid.appendChild(card);
+    });
+  }
+  function flipCard(idx){
+    if(!memoryState || memoryState.done) return;
+    const m = memoryState;
+    if(m.matched.has(idx) || m.flipped.includes(idx) || m.flipped.length>=2) return;
+    const card = $('memoryGrid').children[idx];
+    card.classList.add('flipped'); m.flipped.push(idx); playBlip(440);
+    if(m.flipped.length===2){
+      m.moves++;
+      const [a,b] = m.flipped;
+      if(m.deck[a]===m.deck[b]){
+        m.matched.add(a); m.matched.add(b);
+        $('memoryGrid').children[a].classList.add('matched');
+        $('memoryGrid').children[b].classList.add('matched');
+        m.flipped=[]; playBlip(660);
+        if(m.matched.size===m.deck.length){
+          m.done=true;
+          const reward = Math.max(8, 25-m.moves);
+          addCoins(reward);
+          $('memoryStatus').textContent = `🎉 Solved in ${m.moves} moves! +${reward} coins`;
+          burstConfetti();
+        }
+      } else {
+        setTimeout(()=>{
+          $('memoryGrid').children[a].classList.remove('flipped');
+          $('memoryGrid').children[b].classList.remove('flipped');
+          m.flipped=[];
+        }, 700);
+      }
+    }
+  }
+  $('memoryRestart').addEventListener('click', setupMemoryGame);
+
+  // Bubble pop
+  let bubbleInterval=null, bubbleTimerInt=null, bubbleScore=0, bubbleTimeLeft=20, bubbleRunning=false;
+  function stopBubbleGame(){
+    clearInterval(bubbleInterval); clearInterval(bubbleTimerInt); bubbleRunning=false;
+    document.querySelectorAll('.bubble').forEach(b=>b.remove());
+  }
+  $('bubbleStart').addEventListener('click', ()=>{
+    stopBubbleGame();
+    bubbleScore=0; bubbleTimeLeft=20; bubbleRunning=true;
+    $('bubbleScore').textContent=0; $('bubbleTime').textContent=20;
+    const colors=['#FFB84D','#7FD8BE','#B8A6E8','#FF8FA3','#6EC6FF'];
+    const icons=['🌟','🍀','🎈','💎','🍬'];
+    bubbleInterval = setInterval(()=>{
+      const field = $('bubbleField');
+      const b = document.createElement('div'); b.className='bubble';
+      const size = 36+Math.random()*18;
+      b.style.width=size+'px'; b.style.height=size+'px';
+      b.style.left = (Math.random()*(field.clientWidth-50))+'px';
+      b.style.background = colors[Math.floor(Math.random()*colors.length)];
+      b.textContent = icons[Math.floor(Math.random()*icons.length)];
+      field.appendChild(b);
+      const dur = 2500+Math.random()*1500;
+      const anim = b.animate([{ bottom:'-40px', opacity:1 },{ bottom:field.clientHeight+'px', opacity:1 }], {duration:dur, easing:'linear'});
+      anim.onfinish = ()=> b.remove();
+      b.addEventListener('click', ()=>{
+        if(!bubbleRunning) return;
+        bubbleScore++; $('bubbleScore').textContent=bubbleScore; playBlip(520+Math.random()*200);
+        b.style.transform='scale(1.6)'; b.style.opacity='0'; setTimeout(()=>b.remove(),120);
+      });
+    }, 550);
+    bubbleTimerInt = setInterval(()=>{
+      bubbleTimeLeft--; $('bubbleTime').textContent=bubbleTimeLeft;
+      if(bubbleTimeLeft<=0){
+        stopBubbleGame();
+        const reward = bubbleScore>0 ? Math.min(20, Math.max(3, Math.floor(bubbleScore/2))) : 0;
+        addCoins(reward);
+        burstConfetti();
+      }
+    },1000);
+  });
+
+  applyTheme();
+  renderBadges();
+  render();
+})();
+</script>
+</body>
+</html>

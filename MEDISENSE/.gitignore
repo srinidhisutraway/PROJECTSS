@@ -1,0 +1,14 @@
+node_modules/
+*/node_modules/
+ml-service/raw_datasets/
+ml-service/models/
+ml-service/data/
+*/__pycache__/
+*.csv
+*.keras
+*.h5
+*.pkl
+*.pt
+*.onnx
+*.zip
+.env
